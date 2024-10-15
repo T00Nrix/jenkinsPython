@@ -1,7 +1,7 @@
 pipeline {
     agent { 
         node {
-            label 'Karl'
+            label 'Mark-python'
             }
       }
     triggers {
