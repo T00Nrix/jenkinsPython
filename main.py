@@ -1,1 +1,1 @@
-print("\n\nSold !")
+print("\n\n BAN !")
