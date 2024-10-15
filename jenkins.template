@@ -1,33 +1,51 @@
 pipeline {
-    agent { 
-        node {
-            label 'jenkins-agent-goes-here'
-            }
-      }
+    agent {
+        docker {
+            image 'python:3.8'  // Використання образу Python 3.8 для агента
+            args '-u root'      // Запуск як root для встановлення додаткових пакетів (за потребою)
+        }
+    }
+
+    triggers {
+        pollSCM('H/5 * * * *')  // Poll SCM кожні 5 хвилин
+    }
+
     stages {
         stage('Build') {
             steps {
-                echo "Building.."
-                sh '''
-                echo "doing build stuff.."
-                '''
+                echo 'Building...'
+                // Приклад: встановлення залежностей з requirements.txt
+                sh 'pip install -r requirements.txt'
             }
         }
+
         stage('Test') {
             steps {
-                echo "Testing.."
-                sh '''
-                echo "doing test stuff..
-                '''
+                echo 'Testing...'
+                // Запуск тестів з використанням unittest або pytest
+                sh 'pytest tests/'
             }
         }
-        stage('Deliver') {
+
+        stage('Deploy') {
             steps {
-                echo 'Deliver....'
-                sh '''
-                echo "doing delivery stuff.."
-                '''
+                echo 'Deploying...'
+                // Виконання команд для розгортання, наприклад, завантаження артефактів на сервер
+                sh 'scp -r * user@server:/path/to/deployment'
             }
+        }
+    }
+
+    post {
+        always {
+            echo 'Cleaning up workspace...'
+            deleteDir()
+        }
+        success {
+            echo 'Build, Test, and Deploy succeeded!'
+        }
+        failure {
+            echo 'There were errors in the pipeline.'
         }
     }
 }
